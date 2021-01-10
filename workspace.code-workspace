@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"name": "Project",
+			"path": "."
+		},
+		{
+			"name": "Client",
+			"path": "./client/src"
+		},
+		{
+			"name": "Server",
+			"path": "./server/src"
+		},
+		{
+			"name": "Shared",
+			"path": "./shared/src"
+		},
+	],
+	"settings": {}
+}

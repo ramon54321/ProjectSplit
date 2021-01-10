@@ -1,0 +1,19 @@
+{
+  "scripts": {
+    "clean:client": "tsc --build --clean client",
+    "clean:server": "tsc --build --clean server",
+    "clean:shared": "tsc --build --clean shared",
+    "clean": "tsc --build --clean client server shared",
+    "build:client": "tsc --build client",
+    "build:server": "tsc --build server",
+    "build:shared": "tsc --build shared",
+    "build": "tsc --build client server shared"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.167",
+    "lodash": "^4.17.20",
+    "net-sync": "file:../ProjectNetsync",
+    "resolvable": "file:../ProjectResolvable",
+    "spatial-math": "file:../ProjectSpatialMath"
+  }
+}
