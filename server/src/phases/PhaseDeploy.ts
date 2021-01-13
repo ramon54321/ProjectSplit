@@ -24,6 +24,10 @@ export class PhaseDeploy extends PhaseBase {
       const isReady = netMessage.isReady
       this.playerReadyMap[clientId] = isReady
       this.checkResolvablePlayersReady()
+    } else if (netMessage.type === 'SET_SPAWN_POSITION') {
+      const clientId = netConnection.id
+      const spawnPosition = netMessage.position
+      this.serverState.setSpawnPosition(clientId, spawnPosition)
     }
   }
 

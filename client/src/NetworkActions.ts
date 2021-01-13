@@ -12,9 +12,9 @@ export class NetworkActions {
       isReady: true,
     })
   }
-  setSpawnPoint(x: number, y: number) {
+  setSpawnPosition(x: number, y: number) {
     this.netSyncClient.sendMessage({
-      type: 'SET_SPAWN_POINT',
+      type: 'SET_SPAWN_POSITION',
       position: {
         x: x,
         y: y,

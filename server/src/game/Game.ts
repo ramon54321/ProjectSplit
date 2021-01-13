@@ -1,5 +1,6 @@
 import { entityComponentBank } from '../encyclopedia'
 import { System, EntityComponentBank } from '../ecs'
+import { EntityFactory } from '../EntityFactory'
 import { ServerState } from '../ServerState'
 import { Resolvable } from 'resolvable'
 import { EntityType } from '@shared'
@@ -8,13 +9,15 @@ import * as _ from 'lodash'
 export abstract class Game {
   protected readonly serverState: ServerState
   protected readonly entityComponentBank: EntityComponentBank<EntityType>
-  protected readonly system: System<EntityType>
+  protected readonly system: System
+  protected readonly entityFactory: EntityFactory
   private readonly gameoverResolvable: Resolvable
   constructor(serverState: ServerState, gameoverResolvable: Resolvable) {
     this.serverState = serverState
     this.gameoverResolvable = gameoverResolvable
     this.entityComponentBank = entityComponentBank
-    this.system = new System(this.entityComponentBank)
+    this.system = new System()
+    this.entityFactory = new EntityFactory(this.system, this.entityComponentBank)
   }
   protected gameOver() {
     this.gameoverResolvable.resolve()

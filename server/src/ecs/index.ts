@@ -10,58 +10,52 @@ export type EntityComponentBank<T extends string> = { [key in T]: () => Componen
 
 export class Entity {
   readonly entityId: number
-  private readonly _componentMap = new Map<string, Component>()
+  private readonly componentMap = new Map<string, Component>()
   constructor(entityId: number) {
     this.entityId = entityId
   }
-  addComponent(component: Component) {
+  __addComponent(component: Component) {
     component.__setEntityId(this.entityId)
     const key = Object.getPrototypeOf(component).type
-    this._componentMap.set(key, component)
+    this.componentMap.set(key, component)
   }
   getComponent<T>(componentClass: Function & { prototype: T }): T {
     const key = componentClass.prototype.type
-    return (this._componentMap.get(key) as unknown) as T
+    return (this.componentMap.get(key) as unknown) as T
   }
   getComponents(): Component[] {
-    return Array.from(this._componentMap.values())
+    return Array.from(this.componentMap.values())
   }
 }
 
-export class System<E extends string> {
-  private entityComponentBank: EntityComponentBank<E>
+export class System {
   private entityIdCounter = 0
-  private readonly _componentMap = new Map<string, Component[]>()
-  private readonly _entityMap = new Map<number, Entity>()
-  constructor(entityComponentBank: EntityComponentBank<E>) {
-    this.entityComponentBank = entityComponentBank
-  }
-  createEntityOfType(entityType: E): Entity {
-    const components = this.entityComponentBank[entityType]()
-    return this.createEntityWithComponents(components)
-  }
-  private createEntityWithComponents(components: Component[]): Entity {
+  private readonly componentMap = new Map<string, Component[]>()
+  private readonly entityMap = new Map<number, Entity>()
+  createEntity(): Entity {
     const entityId = this.entityIdCounter++
     const entity = new Entity(entityId)
-    components.forEach(component => entity.addComponent(component))
-    components.forEach(component => this.addComponent(component))
-    this._entityMap.set(entityId, entity)
+    this.entityMap.set(entityId, entity)
     return entity
   }
+  addComponentToEntity(entity: Entity, component: Component) {
+    entity.__addComponent(component)
+    this.addComponent(component)
+  }
   getEntities(): Entity[] {
-    return Array.from(this._entityMap.values())
+    return Array.from(this.entityMap.values())
   }
   getEntityById(entityId: number): Entity | undefined {
-    return this._entityMap.get(entityId)
+    return this.entityMap.get(entityId)
   }
   private addComponent(component: Component) {
     const key = Object.getPrototypeOf(component).type
-    if (!this._componentMap.has(key)) this._componentMap.set(key, [])
-    this._componentMap.get(key)!.push(component)
+    if (!this.componentMap.has(key)) this.componentMap.set(key, [])
+    this.componentMap.get(key)!.push(component)
   }
   getComponents<T>(componentClass: Function | { prototype: T }): T[] {
     const key = componentClass.prototype.type
-    return (this._componentMap.get(key) as unknown) as T[]
+    return (this.componentMap.get(key) as unknown) as T[]
   }
 }
 

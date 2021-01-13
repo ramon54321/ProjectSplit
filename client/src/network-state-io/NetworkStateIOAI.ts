@@ -15,7 +15,7 @@ export class NetworkStateIOAI extends NetworkStateIO {
     console.log('Waiting for Deploy Phase')
     await this.untilPhaseConfirmation('DEPLOY', this.deployConfirmation)
     console.log('Setting Spawn Point')
-    this.networkActions.setSpawnPoint(3, 4)
+    this.networkActions.setSpawnPosition(3, 4)
     console.log('Setting Deploy Ready')
     this.networkActions.setDeployReady()
     console.log('Waiting for Play Phase')

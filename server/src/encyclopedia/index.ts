@@ -1,8 +1,9 @@
 import { setComponentType, EntityComponentBank, Component } from '../ecs'
 import { ComponentType, EntityType } from '@shared'
+import { Vec2 } from 'spatial-math'
 
 @setComponentType<ComponentType>('IDENTITY')
-export class IdentityComponent extends Component {
+export class ComponentIdentity extends Component {
   readonly clientId: string
   readonly teamId: number
   readonly entityType: EntityType
@@ -21,7 +22,7 @@ export class IdentityComponent extends Component {
 }
 
 @setComponentType<ComponentType>('HEALTH')
-export class HealthComponent extends Component {
+export class ComponentHealth extends Component {
   heal() {
     console.log('Healing')
   }
@@ -32,7 +33,7 @@ export class HealthComponent extends Component {
   }
 }
 
-export class AdvHealthComponent extends HealthComponent {
+export class ComponentAdvHealth extends ComponentHealth {
   heal() {
     console.log('Advanced Heal')
   }
@@ -44,21 +45,26 @@ export class AdvHealthComponent extends HealthComponent {
 }
 
 @setComponentType<ComponentType>('MOVEMENT')
-export class MovementComponent extends Component {
+export class ComponentMovement extends Component {
+  private position: Vec2 = new Vec2()
+  setPosition(position: Vec2) {
+    this.position.x = position.x
+    this.position.y = position.y
+  }
   move() {
     console.log('Moving')
   }
   netify() {
     return {
       position: {
-        x: 4,
-        y: 2,
+        x: this.position.x,
+        y: this.position.y,
       },
     }
   }
 }
 
 export const entityComponentBank: EntityComponentBank<EntityType> = {
-  LIGHT_INFANTRY: () => [new MovementComponent(), new HealthComponent()],
-  JEEP: () => [new MovementComponent(), new AdvHealthComponent()],
+  LIGHT_INFANTRY: () => [new ComponentMovement(), new ComponentHealth()],
+  JEEP: () => [new ComponentMovement(), new ComponentAdvHealth()],
 }
