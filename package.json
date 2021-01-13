@@ -7,13 +7,22 @@
     "build:client": "tsc --build client",
     "build:server": "tsc --build server",
     "build:shared": "tsc --build shared",
-    "build": "tsc --build client server shared"
+    "build": "tsc --build client server shared",
+    "start:client": "node ./client/dist --ai",
+    "start:server": "node ./server/dist"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.167",
+    "madge": "^4.0.0"
+  },
+  "dependencies": {
     "lodash": "^4.17.20",
+    "module-alias": "^2.2.2",
     "net-sync": "file:../ProjectNetsync",
     "resolvable": "file:../ProjectResolvable",
     "spatial-math": "file:../ProjectSpatialMath"
+  },
+  "_moduleAliases": {
+    "@shared": "shared/dist"
   }
 }

@@ -8,9 +8,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "paths": {
-      "@shared": ["../shared/src"]
-    }
+    "experimentalDecorators": true,
   },
   "exclude": ["node_modules", "dist"],
 }

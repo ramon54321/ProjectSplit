@@ -1,3 +1,4 @@
+import 'module-alias/register'
 import { PhaseMachine, PhaseLobby, PhaseDeploy, PhasePlay } from './phases'
 import { NetMessage, GamePhase } from '@shared'
 import { ClientManager } from './ClientManager'

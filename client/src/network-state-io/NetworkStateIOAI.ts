@@ -36,7 +36,7 @@ export class NetworkStateIOAI extends NetworkStateIO {
   }
 
   private playTick(tick: number) {
-    console.log('Playing tick', tick)
+    console.log('Playing tick', tick, 'with state', JSON.stringify(this.networkState, null, 2))
   }
 
   private async untilPhaseConfirmation(phase: GamePhase, resolvable: Resolvable) {

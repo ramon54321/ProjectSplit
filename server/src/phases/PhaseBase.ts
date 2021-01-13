@@ -1,8 +1,8 @@
 import { NetSyncServer, NetConnection } from 'net-sync'
 import { GamePhase, NetMessage } from '@shared'
 import { ServerState } from '../ServerState'
+import { Phase } from './Phase'
 import * as _ from 'lodash'
-import { Phase } from '.'
 
 export abstract class PhaseBase extends Phase<GamePhase> {
   protected readonly phase: GamePhase
@@ -27,6 +27,7 @@ export abstract class PhaseBase extends Phase<GamePhase> {
   protected onClientMessage(netConnection: NetConnection, netMessage: NetMessage) {}
 
   async onEntry(fromPhase: GamePhase): Promise<GamePhase | undefined> {
+    console.log(`Enter Phase: ${this.phase}`)
     this.netSyncServer.on('connect', this.onClientJoinHandler)
     this.netSyncServer.on('disconnect', this.onClientLeaveHandler)
     this.netSyncServer.on('message', this.onClientMessageHandler as any)
@@ -42,5 +43,6 @@ export abstract class PhaseBase extends Phase<GamePhase> {
     this.netSyncServer.removeListener('connect', this.onClientJoinHandler)
     this.netSyncServer.removeListener('disconnect', this.onClientLeaveHandler)
     this.netSyncServer.removeListener('message', this.onClientMessageHandler)
+    console.log(`Enter Phase: ${this.phase}`)
   }
 }

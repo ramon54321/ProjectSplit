@@ -41,13 +41,11 @@ export class PhaseLobby extends PhaseBase {
 
   async onEntry(fromPhase: GamePhase): Promise<GamePhase | undefined> {
     await super.onEntry(fromPhase)
-    console.log('PhaseLobby Enter')
     this.sufficientClientsResolvable = new Resolvable()
     await untilResolved(this.sufficientClientsResolvable)
     return 'DEPLOY'
   }
   async onExit(toPhase: GamePhase): Promise<void> {
     await super.onExit(toPhase)
-    console.log('PhaseLobby Exit')
   }
 }

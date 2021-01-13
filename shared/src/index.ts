@@ -1,7 +1,7 @@
 import { Vec2 } from 'spatial-math'
 
 export type GamePhase = 'LOBBY' | 'DEPLOY' | 'PLAY'
-// export type ComponentType = 'HEALTH' | 'MORALE' | 'MOVEMENT' | 'INFLUENCE'
+export type ComponentType = 'IDENTITY' | 'HEALTH' | 'MOVEMENT'
 export type EntityType = 'LIGHT_INFANTRY' | 'JEEP'
 
 export type NetMessage = NM_Phase | NM_SetSpawnPoint | NM_SetDeployReady | NM_Tick
@@ -20,4 +20,8 @@ export interface NM_SetDeployReady {
 export interface NM_Tick {
   type: 'TICK'
   tick: number
+}
+
+export interface INetifyable {
+  netify(): any
 }
