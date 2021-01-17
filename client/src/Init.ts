@@ -16,9 +16,9 @@ export class Init {
     NetworkStateIOClass: new (
       networkState: any,
       networkActions: NetworkActions,
-      AIClass: new (networkStateIO: NetworkStateIO, networkActions: NetworkActions) => AI,
+      AIClass: new (networkStateIO: NetworkStateIO, networkState: any, networkActions: NetworkActions) => AI,
     ) => NetworkStateIO,
-    AIClass: new (networkStateIO: NetworkStateIO, networkActions: NetworkActions) => AI,
+    AIClass: new (networkStateIO: NetworkStateIO, networkState: any, networkActions: NetworkActions) => AI,
   ) {
     this.networkState = {}
     this.netSyncClient = new NetSyncClient<NetMessage>(this.networkState, host, port)

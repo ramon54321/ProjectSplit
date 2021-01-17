@@ -14,11 +14,11 @@ export abstract class NetworkStateIO {
   constructor(
     networkState: any,
     networkActions: NetworkActions,
-    AIClass: new (networkStateIO: NetworkStateIO, networkActions: NetworkActions) => AI,
+    AIClass: new (networkStateIO: NetworkStateIO, networkState: any, networkActions: NetworkActions) => AI,
   ) {
     this.networkState = networkState
     this.networkActions = networkActions
-    this.ai = new AIClass(this, this.networkActions)
+    this.ai = new AIClass(this, this.networkState, this.networkActions)
   }
   async _onMessage(message: NetMessage) {
     await this.onMessage(message)

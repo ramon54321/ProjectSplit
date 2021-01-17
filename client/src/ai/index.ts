@@ -4,9 +4,11 @@ import { NetMessage } from '@shared'
 
 export abstract class AI {
   protected readonly networkStateIO: NetworkStateIO
+  protected readonly networkState: any
   protected readonly networkActions: NetworkActions
-  constructor(networkStateIO: NetworkStateIO, networkActions: NetworkActions) {
+  constructor(networkStateIO: NetworkStateIO, networkState: any, networkActions: NetworkActions) {
     this.networkStateIO = networkStateIO
+    this.networkState = networkState
     this.networkActions = networkActions
   }
   abstract onMessage(message: NetMessage): Promise<void>
