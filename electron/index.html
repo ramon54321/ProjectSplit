@@ -1,0 +1,19 @@
+<link rel="stylesheet" href="style.css" />
+<html>
+  <div id="toolbox">
+    <input type="checkbox" checked id="show">Show</input>
+    <select id="mode">
+      <option value="A">A</option>
+      <option value="B">B</option>
+      <option value="C">C</option>
+    </select>
+  </div>
+  <div id="info">Info</div>
+  <div id="tooltip">Tooltip</div>
+  <canvas id="canvas"></canvas>
+</html>
+<script>
+  process.argv.push('--electron')
+  process.argv.push('--ai')
+  require('./client/index.js')
+</script>

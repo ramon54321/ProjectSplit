@@ -1,21 +1,27 @@
-import { NetworkStateIO, NetworkStateIOConsole, NetworkStateIOAI } from './network-state-io'
-import { NetworkActions } from './NetworkActions'
-import { NetSyncClient } from 'net-sync'
-import { NetMessage } from '@shared'
-import * as _ from 'lodash'
+import { NetworkStateIOElectron } from './network-state-io/NetworkStateIOElectron'
+import { NetworkStateIOConsole } from './network-state-io'
+import { AIBasic, AINull } from './ai'
+import { InitType } from '@shared'
+import * as yargs from 'yargs'
+import { Init } from './Init'
 
-const config = {
-  isAI: _.includes(process.argv, '--ai'),
+const argv = yargs
+  .option('ai', {
+    boolean: true,
+  })
+  .option('electron', {
+    boolean: true,
+  })
+  .help()
+  .alias('help', 'h').argv
+
+const AIClass = argv.ai ? AIBasic : AINull
+const initType: InitType = argv.electron ? 'ELECTRON' : 'CONSOLE'
+
+if (initType === 'CONSOLE') {
+  new Init('localhost', 8081, NetworkStateIOConsole, AIClass)
+} else if (initType === 'ELECTRON') {
+  new Init('localhost', 8081, NetworkStateIOElectron, AIClass)
+} else {
+  throw new Error(`Failed to initialize ${initType}`)
 }
-
-const networkState: any = {}
-const netSyncClient = new NetSyncClient<NetMessage>(networkState, 'localhost', 8081)
-
-const networkActions = new NetworkActions(netSyncClient)
-const networkStateIO: NetworkStateIO = config.isAI
-  ? new NetworkStateIOAI(networkState, networkActions)
-  : new NetworkStateIOConsole(networkState, networkActions)
-
-netSyncClient.on('message', message => networkStateIO.onMessage(message as any))
-netSyncClient.on('connect', connection => networkStateIO.onConnect())
-netSyncClient.on('disconnect', connection => networkStateIO.onDisconnect())

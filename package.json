@@ -1,18 +1,24 @@
 {
   "scripts": {
+    "uninstall": "npm run clean && rm -rf node_modules electron/node_modules client/dist server/dist shared/dist",
+    "install": "npm --prefix electron install",
+    "clean:electron": "npm --prefix electron run clean",
     "clean:client": "tsc --build --clean client",
     "clean:server": "tsc --build --clean server",
     "clean:shared": "tsc --build --clean shared",
-    "clean": "tsc --build --clean client server shared",
+    "clean": "tsc --build --clean client server shared && npm run clean:electron",
+    "build:electron": "npm --prefix electron run build",
     "build:client": "tsc --build client",
     "build:server": "tsc --build server",
     "build:shared": "tsc --build shared",
     "build": "tsc --build client server shared",
+    "start:electron": "npm --prefix electron run start",
     "start:client": "node ./client/dist --ai",
     "start:server": "node ./server/dist"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.167",
+    "@types/yargs": "^15.0.12",
     "madge": "^4.0.0"
   },
   "dependencies": {
@@ -20,7 +26,8 @@
     "module-alias": "^2.2.2",
     "net-sync": "file:../ProjectNetsync",
     "resolvable": "file:../ProjectResolvable",
-    "spatial-math": "file:../ProjectSpatialMath"
+    "spatial-math": "file:../ProjectSpatialMath",
+    "yargs": "^16.2.0"
   },
   "_moduleAliases": {
     "@shared": "shared/dist"

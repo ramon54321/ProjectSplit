@@ -1,0 +1,24 @@
+{
+  "scripts": {
+    "clean": "rm -rf client shared dist",
+    "prebuild": "npm run clean && cp -r ../client/dist client && cp -r ../shared/dist shared",
+    "build": "electron-packager . split --out dist --overwrite",
+    "start": "npm run prebuild && electron .",
+    "start:dist": "open dist/split-darwin-x64/split.app"
+  },
+  "dependencies": {
+    "lodash": "^4.17.20",
+    "module-alias": "^2.2.2",
+    "net-sync": "file:../../ProjectNetsync",
+    "resolvable": "file:../../ProjectResolvable",
+    "spatial-math": "file:../../ProjectSpatialMath",
+    "yargs": "^16.2.0"
+  },
+  "_moduleAliases": {
+    "@shared": "shared/dist"
+  },
+  "devDependencies": {
+    "electron": "^11.2.0",
+    "electron-packager": "^15.2.0"
+  }
+}

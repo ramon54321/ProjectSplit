@@ -1,12 +1,12 @@
 import { NetMessage } from '@shared'
 import { NetworkStateIO } from '.'
 
-export class NetworkStateIOConsole extends NetworkStateIO {
+export class NetworkStateIOElectron extends NetworkStateIO {
   async onConnect() {
-    console.log('Connected Console')
+    console.log('Connected Electron')
   }
   async onDisconnect() {
-    console.log('Disconnected Console')
+    console.log('Disconnected Electron')
   }
   async onMessage(message: NetMessage) {
     

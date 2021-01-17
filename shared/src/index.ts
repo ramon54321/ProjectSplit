@@ -1,5 +1,6 @@
 import { Vec2 } from 'spatial-math'
 
+export type InitType = 'AI' | 'CONSOLE' | 'ELECTRON'
 export type GamePhase = 'LOBBY' | 'DEPLOY' | 'PLAY'
 export type ComponentType = 'IDENTITY' | 'HEALTH' | 'MOVEMENT'
 export type EntityType = 'LIGHT_INFANTRY' | 'JEEP'
