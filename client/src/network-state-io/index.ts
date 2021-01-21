@@ -19,7 +19,9 @@ export abstract class NetworkStateIO {
     this.networkState = networkState
     this.networkActions = networkActions
     this.ai = new AIClass(this, this.networkState, this.networkActions)
+    this.init()
   }
+  init() {}
   async _onMessage(message: NetMessage) {
     await this.onMessage(message)
     if (this.phase === 'PLAY' && message.type === 'TICK') {

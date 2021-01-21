@@ -1,7 +1,8 @@
 {
   "scripts": {
     "clean": "rm -rf client shared dist",
-    "prebuild": "npm run clean && cp -r ../client/dist client && cp -r ../shared/dist shared",
+    "link": "ln -s ../shared/dist shared && ln -s ../client/dist client",
+    "prebuild": "npm run clean && npm run link",
     "build": "electron-packager . split --out dist --overwrite",
     "start": "npm run prebuild && electron .",
     "start:dist": "open dist/split-darwin-x64/split.app"

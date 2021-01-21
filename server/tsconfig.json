@@ -10,5 +10,6 @@
       "@shared/*": ["../shared/src/*"],
     }
   },
-  "references": [{ "path": "../shared" }]
+  "references": [{ "path": "../shared" }],
+  // "exclude": ["./node_modules/**/*", "./dist/**/*"],
 }

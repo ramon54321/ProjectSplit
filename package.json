@@ -9,6 +9,7 @@
     "clean": "tsc --build --clean client server shared && npm run clean:electron",
     "build:electron": "npm --prefix electron run build",
     "build:client": "tsc --build client",
+    "build:client:watch": "tsc --build client --watch",
     "build:server": "tsc --build server",
     "build:shared": "tsc --build shared",
     "build": "tsc --build client server shared",
@@ -19,7 +20,9 @@
   "devDependencies": {
     "@types/lodash": "^4.14.167",
     "@types/yargs": "^15.0.12",
-    "madge": "^4.0.0"
+    "madge": "^4.0.0",
+    "three": "^0.124.0",
+    "typescript": "^4.1.3"
   },
   "dependencies": {
     "lodash": "^4.17.20",
