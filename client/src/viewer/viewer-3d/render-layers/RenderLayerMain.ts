@@ -1,14 +1,41 @@
 import { RenderLayer, Collection } from '.'
 import { degreesToRadians } from '../math'
 import { Input } from '../Input'
+import { Assets } from '../Assets'
 import * as THREE from 'three'
 
 export class RenderLayerMain extends RenderLayer {
   private readonly scene: THREE.Scene
+  private readonly collectionLights: CollectionLightsDaylight
+  private readonly collectionTerrain: CollectionTerrainFlatGrid
+  private readonly collectionEntities: CollectionEntitiesCube
+  private readonly collectionCamera: CollectionCamera
+  constructor(renderer: THREE.WebGLRenderer, assets: Assets, input: Input) {
+    super(renderer, assets, input)
+
+    this.scene = new THREE.Scene()
+    this.scene.fog = new THREE.FogExp2('#faf5ef', 0.015)
+    this.scene.background = new THREE.Color('#faf5ef')
+
+    this.collectionLights = new CollectionLightsDaylight(this.scene)
+    this.collectionTerrain = new CollectionTerrainFlatGrid(this.scene, this.assets, this.renderer.capabilities.getMaxAnisotropy())
+    this.collectionEntities = new CollectionEntitiesCube(this.scene)
+    this.collectionCamera = new CollectionCamera(this.input)
+  }
+  render(delta: number) {
+    this.collectionCamera.update(delta)
+    this.collectionEntities.update(delta)
+    this.renderer.clearDepth()
+    this.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight)
+    this.renderer.render(this.scene, this.collectionCamera.camera)
+  }
+  getCamera(): THREE.Camera {
+    return this.collectionCamera.camera
+  }
+}
+
+class CollectionCamera extends Collection {
   readonly camera: THREE.Camera
-  private readonly collectionLights: Collection
-  private readonly collectionTerrain: Collection
-  private readonly collectionEntities: Collection
   private readonly cameraBaseSpeed: number = 10
   private readonly cameraZoomSpeedMultiplier: number = 2.4
   private readonly cameraZoomMin: number = 0
@@ -18,12 +45,10 @@ export class RenderLayerMain extends RenderLayer {
   private readonly cameraTargetTranslation: THREE.Vector3
   private readonly cameraTargetRotation: THREE.Euler
   private cameraZoom: number = 0
-  constructor(renderer: THREE.WebGLRenderer, input: Input) {
-    super(renderer, input)
-
-    this.scene = new THREE.Scene()
-    this.scene.fog = new THREE.FogExp2('#faf5ef', 0.015)
-    this.scene.background = new THREE.Color('#faf5ef')
+  private readonly input: Input
+  constructor(input: Input) {
+    super()
+    this.input = input
 
     this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000)
     this.camera.position.z = 5
@@ -32,19 +57,8 @@ export class RenderLayerMain extends RenderLayer {
     this.cameraTargetTranslation = this.camera.position.clone()
     this.cameraTargetTranslation.z = 7
     this.cameraTargetRotation = this.camera.rotation.clone()
-
-    this.collectionLights = new CollectionLightsDaylight(this.scene)
-    this.collectionTerrain = new CollectionTerrainFlatGrid(this.scene, this.renderer.capabilities.getMaxAnisotropy())
-    this.collectionEntities = new CollectionEntitiesCube(this.scene)
   }
-  render(delta: number) {
-    this.updateCamera(delta)
-    this.collectionEntities.update(delta)
-    this.renderer.clearDepth()
-    this.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight)
-    this.renderer.render(this.scene, this.camera)
-  }
-  private updateCamera(delta: number) {
+  update(delta: number) {
     const cameraSpeed = this.cameraBaseSpeed + this.cameraZoom * this.cameraZoomSpeedMultiplier
     if (this.input.keyDownMap['a']) {
       this.cameraTargetTranslation.x -= cameraSpeed * delta
@@ -119,11 +133,11 @@ class CollectionLightsDaylight extends Collection {
 }
 
 class CollectionTerrainFlatGrid extends Collection {
-  constructor(scene: THREE.Scene, anisotropy: number) {
+  constructor(scene: THREE.Scene, assets: Assets, anisotropy: number) {
     super()
     const planeSize = 1000
     const planeGeo = new THREE.PlaneBufferGeometry(planeSize, planeSize)
-    const texture = new THREE.TextureLoader().load('resources/grid1x1.png')
+    const texture = assets.getTexture('grid1x1.png')
     texture.anisotropy = anisotropy
     texture.wrapS = THREE.RepeatWrapping
     texture.wrapT = THREE.RepeatWrapping

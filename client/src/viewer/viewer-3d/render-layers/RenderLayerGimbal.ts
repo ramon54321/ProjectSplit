@@ -1,3 +1,4 @@
+import { Assets } from '../Assets'
 import { Input } from '../Input'
 import { RenderLayer } from '.'
 import * as THREE from 'three'
@@ -7,12 +8,12 @@ export class RenderLayerGimbal extends RenderLayer {
   private readonly camera: THREE.Camera
   private readonly mainCamera: THREE.Camera
   private readonly textureDot: THREE.Texture
-  constructor(renderer: THREE.WebGLRenderer, input: Input, mainCamera: THREE.Camera) {
-    super(renderer, input)
+  constructor(renderer: THREE.WebGLRenderer, assets: Assets, input: Input, mainCamera: THREE.Camera) {
+    super(renderer, assets, input)
     this.mainCamera = mainCamera
     this.scene = new THREE.Scene()
     this.camera = new THREE.OrthographicCamera(-1.4, 1.4, 1.4, -1.4, -4, 4)
-    this.textureDot = new THREE.TextureLoader().load('resources/dot.png')
+    this.textureDot = assets.getTexture('dot.png')
     this.createDot([new THREE.Vector3(1, 0, 0)], 12, new THREE.Color('#ef4f4f'))
     this.createDot([new THREE.Vector3(0, 1, 0)], 12, new THREE.Color('#96bb7c'))
     this.createDot([new THREE.Vector3(0, 0, 1)], 12, new THREE.Color('#3e64ff'))
