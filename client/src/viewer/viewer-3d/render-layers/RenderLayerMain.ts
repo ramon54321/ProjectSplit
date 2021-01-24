@@ -191,7 +191,12 @@ class AdvancedMesh {
     this.mesh = mesh
   }
   update(delta: number) {
-    
+    this.mesh.position.x += (this.targetPosition.x - this.mesh.position.x) / 10
+    this.mesh.position.z += (this.targetPosition.z - this.mesh.position.z) / 10
+  }
+  setTargetPosition(position: THREE.Vector3) {
+    this.targetPosition.x = position.x
+    this.targetPosition.z = position.y
   }
 }
 
@@ -247,8 +252,7 @@ class CollectionEntities extends Collection {
         console.warn('Entity mismatch between NetworkState and CollectionEntities')
         return
       }
-      advancedMesh.mesh.position.x = movementComponent.position.x
-      advancedMesh.mesh.position.z = movementComponent.position.y
+      advancedMesh.setTargetPosition(movementComponent.position)
     })
   }
   updateNetworkState(networkState: NetworkState) {
