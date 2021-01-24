@@ -12,6 +12,7 @@
     "module-alias": "^2.2.2",
     "net-sync": "file:../../ProjectNetsync",
     "spatial-math": "file:../../ProjectSpatialMath",
+    "three": "^0.124.0",
     "yargs": "^16.2.0"
   },
   "_moduleAliases": {
