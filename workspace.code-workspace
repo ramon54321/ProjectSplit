@@ -16,6 +16,9 @@
 			"name": "Shared",
 			"path": "./shared/src"
 		},
+		{
+			"path": "../ProjectNetsync"
+		}
 	],
 	"settings": {}
 }

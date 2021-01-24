@@ -1,4 +1,5 @@
-import { RenderLayer, RenderLayerMain, RenderLayerGimbal } from './render-layers'
+import { RenderLayerMain, RenderLayerGimbal } from './render-layers'
+import { NetworkState } from '@shared'
 import { Assets } from './Assets'
 import { Input } from './Input'
 import * as THREE from 'three'
@@ -9,7 +10,8 @@ export class Viewer3D extends Viewer {
   private readonly assets: Assets
   private readonly input: Input
   private readonly renderer: THREE.WebGLRenderer
-  private readonly renderLayers: RenderLayer[] = []
+  private readonly renderLayerMain: RenderLayerMain
+  private readonly renderLayerGimbal: RenderLayerGimbal
   constructor() {
     super()
     this.assets = new Assets()
@@ -20,10 +22,8 @@ export class Viewer3D extends Viewer {
     this.renderer.setSize(window.innerWidth, window.innerHeight)
     document.body.appendChild(this.renderer.domElement)
 
-    const renderLayerMain = new RenderLayerMain(this.renderer, this.assets, this.input)
-    const renderLayerGimbal = new RenderLayerGimbal(this.renderer, this.assets, this.input, renderLayerMain.getCamera())
-    this.renderLayers.push(renderLayerMain)
-    this.renderLayers.push(renderLayerGimbal)
+    this.renderLayerMain = new RenderLayerMain(this.renderer, this.assets, this.input)
+    this.renderLayerGimbal = new RenderLayerGimbal(this.renderer, this.assets, this.input, this.renderLayerMain.getCamera())
 
     requestAnimationFrame(this.render.bind(this))
   }
@@ -31,6 +31,10 @@ export class Viewer3D extends Viewer {
     requestAnimationFrame(this.render.bind(this))
     const delta = this.clock.getDelta()
     this.renderer.clear()
-    this.renderLayers.forEach(renderLayer => renderLayer.render(delta))
+    this.renderLayerMain.render(delta)
+    this.renderLayerGimbal.render(delta)
+  }
+  updateNetworkState(networkState: NetworkState): void {
+    this.renderLayerMain.updateNetworkState(networkState)
   }
 }

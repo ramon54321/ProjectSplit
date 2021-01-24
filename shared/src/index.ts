@@ -23,6 +23,16 @@ export interface NM_Tick {
   tick: number
 }
 
+export interface NetworkState {
+  entities: NetworkStateEntity[]
+  teamClientIds: any[]
+}
+
+export interface NetworkStateEntity {
+  id: number
+  components: any[]
+}
+
 export interface INetifyable {
   netify(): any
 }

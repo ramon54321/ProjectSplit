@@ -1,20 +1,15 @@
-import * as _ from 'lodash'
+import { NetMessage, NetworkState, NetworkStateEntity } from '@shared'
 import { NetSyncServer } from 'net-sync'
-import { NetMessage } from '@shared'
 import { Vec2 } from 'spatial-math'
-
-interface EntityNetworkState {
-  id: number
-  components: any[]
-}
+import * as _ from 'lodash'
 
 export class ServerState {
   private readonly netSyncServer: NetSyncServer<NetMessage>
-  private readonly networkState: any
+  private readonly networkState: NetworkState
   private readonly teamClientIds: string[][]
-  private readonly entities: EntityNetworkState[]
+  private readonly entities: NetworkStateEntity[]
   private readonly spawnPositionByClientId: Map<string, Vec2> = new Map<string, Vec2>()
-  constructor(netSyncServer: NetSyncServer<NetMessage>, networkState: any) {
+  constructor(netSyncServer: NetSyncServer<NetMessage>, networkState: NetworkState) {
     this.netSyncServer = netSyncServer
     this.networkState = networkState
 
@@ -29,13 +24,21 @@ export class ServerState {
     this.networkState.teamClientIds = this.teamClientIds
     this.networkState.entities = this.entities
   }
-  setEntities(entities: EntityNetworkState[]) {
+  setEntities(entities: NetworkStateEntity[]) {
     _.remove(this.entities, () => true)
     _.forEach(entities, x => this.entities.push(x))
   }
   setTeamClientIds(teamClientIds: string[][]) {
     _.remove(this.teamClientIds, () => true)
     _.forEach(teamClientIds, x => this.teamClientIds.push(x))
+  }
+  addClientIdToTeamId(clientId: string, teamId: number) {
+    if (this.teamClientIds[teamId] === undefined) this.teamClientIds[teamId] = []
+    this.teamClientIds[teamId].push(clientId)
+  }
+  removeClientIdFromAllTeamIds(clientId: string) {
+    const teamClientIds = _.map(this.teamClientIds, team => _.filter(team, cid => cid !== clientId))
+    this.setTeamClientIds(teamClientIds)
   }
   setSpawnPosition(clientId: string, spawnPosition: Vec2) {
     this.spawnPositionByClientId.set(clientId, spawnPosition)

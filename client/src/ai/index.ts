@@ -1,16 +1,18 @@
 import { NetworkStateIO } from '../network-state-io'
 import { NetworkActions } from '../NetworkActions'
-import { NetMessage } from '@shared'
+import { NetMessage, NetworkState } from '@shared'
 
 export abstract class AI {
   protected readonly networkStateIO: NetworkStateIO
-  protected readonly networkState: any
+  protected readonly networkState: NetworkState
   protected readonly networkActions: NetworkActions
-  constructor(networkStateIO: NetworkStateIO, networkState: any, networkActions: NetworkActions) {
+  constructor(networkStateIO: NetworkStateIO, networkState: NetworkState, networkActions: NetworkActions) {
     this.networkStateIO = networkStateIO
     this.networkState = networkState
     this.networkActions = networkActions
+    this.onInit()
   }
+  onInit(): void {}
   abstract onMessage(message: NetMessage): Promise<void>
   abstract onConnect(): Promise<void>
   abstract onDisconnect(): Promise<void>
@@ -25,21 +27,23 @@ export class AINull extends AI {
 }
 
 export class AIBasic extends AI {
-  async onTick(tick: number) {}
-  async onMessage(message: NetMessage) {}
-  async onConnect() {
-    console.log('Connected to server')
-    console.log('Waiting for Lobby Phase')
-    await this.networkStateIO.untilPhaseConfirmation(this.networkStateIO.lobbyConfirmation)
-    console.log('Waiting for Deploy Phase')
-    await this.networkStateIO.untilPhaseConfirmation(this.networkStateIO.deployConfirmation)
+  onInit() {
+    this.networkStateIO.on('phase', phase => {
+      if (phase === 'LOBBY') this.onEnterLobby()
+      else if (phase === 'DEPLOY') this.onEnterDeploy()
+      else if (phase === 'PLAY') this.onEnterPlay()
+    })
+  }
+  private onEnterLobby() {}
+  private onEnterDeploy() {
     console.log('Setting Spawn Point')
     this.networkActions.setSpawnPosition(3, 4)
     console.log('Setting Deploy Ready')
     this.networkActions.setDeployReady()
-    console.log('Waiting for Play Phase')
-    await this.networkStateIO.untilPhaseConfirmation(this.networkStateIO.playConfirmation)
-    console.log('Starting to Play')
   }
+  private onEnterPlay() {}
+  async onTick(tick: number) {}
+  async onMessage(message: NetMessage) {}
+  async onConnect() {}
   async onDisconnect() {}
 }

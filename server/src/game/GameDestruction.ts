@@ -7,13 +7,17 @@ export class GameDestruction extends Game {
     console.log('Preparing Destruction Game')
     this.spawnInitialEntities()
   }
-  tick() {
+  tick(tick: number) {
     console.log('Ticking Destruction Game')
-    this.tickComponents()
+    this.tickComponents(tick)
     this.checkGameOver()
   }
-  private tickComponents() {
-
+  private tickComponents(tick: number) {
+    const movementComponent = this.system.getEntityById(0)?.getComponent(ComponentMovement)
+    movementComponent?.setPosition({
+      x: tick,
+      y: 0,
+    })
   }
   private spawnInitialEntities() {
     const clientIds = this.serverState.getClientIds()

@@ -1,15 +1,18 @@
 import { RenderLayer, Collection } from '.'
 import { degreesToRadians } from '../math'
-import { Input } from '../Input'
+import { NetworkState, NetworkStateEntity } from '@shared'
 import { Assets } from '../Assets'
+import { Input } from '../Input'
 import * as THREE from 'three'
+import * as _ from 'lodash'
 
 export class RenderLayerMain extends RenderLayer {
   private readonly scene: THREE.Scene
   private readonly collectionLights: CollectionLightsDaylight
   private readonly collectionTerrain: CollectionTerrainFlatGrid
-  private readonly collectionEntities: CollectionEntitiesCube
+  private readonly collectionEntities: CollectionEntities
   private readonly collectionCamera: CollectionCamera
+  private readonly collectionMouseInput: CollectionMouseInput
   constructor(renderer: THREE.WebGLRenderer, assets: Assets, input: Input) {
     super(renderer, assets, input)
 
@@ -19,18 +22,46 @@ export class RenderLayerMain extends RenderLayer {
 
     this.collectionLights = new CollectionLightsDaylight(this.scene)
     this.collectionTerrain = new CollectionTerrainFlatGrid(this.scene, this.assets, this.renderer.capabilities.getMaxAnisotropy())
-    this.collectionEntities = new CollectionEntitiesCube(this.scene)
+    this.collectionEntities = new CollectionEntities(this.scene)
     this.collectionCamera = new CollectionCamera(this.input)
+    this.collectionMouseInput = new CollectionMouseInput(this.scene, this.input, this.collectionCamera.camera)
   }
   render(delta: number) {
     this.collectionCamera.update(delta)
     this.collectionEntities.update(delta)
+    this.collectionMouseInput.update(delta)
     this.renderer.clearDepth()
     this.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight)
     this.renderer.render(this.scene, this.collectionCamera.camera)
   }
+  updateNetworkState(networkState: NetworkState) {
+    this.collectionEntities.updateNetworkState(networkState)
+  }
   getCamera(): THREE.Camera {
     return this.collectionCamera.camera
+  }
+}
+
+class CollectionMouseInput extends Collection {
+  private readonly scene: THREE.Scene
+  private readonly input: Input
+  private readonly camera: THREE.Camera
+  private readonly raycaster: THREE.Raycaster
+  constructor(scene: THREE.Scene, input: Input, camera: THREE.Camera) {
+    super()
+    this.scene = scene
+    this.input = input
+    this.camera = camera
+    this.raycaster = new THREE.Raycaster()
+  }
+  update(delta: number) {
+    this.raycaster.setFromCamera(this.input.getMousePosition(), this.camera)
+    const intersects = this.raycaster.intersectObjects(this.scene.children)
+    _.forEach(intersects, intersect => {
+      if (intersect.object instanceof THREE.Mesh) {
+        console.log(intersect.object.name)
+      }
+    })
   }
 }
 
@@ -135,16 +166,17 @@ class CollectionLightsDaylight extends Collection {
 class CollectionTerrainFlatGrid extends Collection {
   constructor(scene: THREE.Scene, assets: Assets, anisotropy: number) {
     super()
-    const planeSize = 1000
-    const planeGeo = new THREE.PlaneBufferGeometry(planeSize, planeSize)
+    const terrainSize = 1000
+    const geometry = new THREE.PlaneBufferGeometry(terrainSize, terrainSize)
     const texture = assets.getTexture('grid1x1.png')
     texture.anisotropy = anisotropy
     texture.wrapS = THREE.RepeatWrapping
     texture.wrapT = THREE.RepeatWrapping
-    texture.repeat.set(planeSize, planeSize)
-    const planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
-    planeMaterial.color.setHSL(0.095, 1, 0.85)
-    const plane = new THREE.Mesh(planeGeo, planeMaterial)
+    texture.repeat.set(terrainSize, terrainSize)
+    const material = new THREE.MeshLambertMaterial({ map: texture })
+    material.color.setHSL(0.095, 1, 0.85)
+    const plane = new THREE.Mesh(geometry, material)
+    plane.name = 'TERRAIN'
     plane.receiveShadow = true
     plane.position.y = 0
     plane.rotation.x = degreesToRadians(-90)
@@ -152,19 +184,96 @@ class CollectionTerrainFlatGrid extends Collection {
   }
 }
 
-class CollectionEntitiesCube extends Collection {
-  private cube: THREE.Mesh
-  constructor(scene: THREE.Scene) {
-    super()
-    const geometry = new THREE.BoxGeometry()
-    const material = new THREE.MeshLambertMaterial({ color: new THREE.Color('#ff5858') })
-    this.cube = new THREE.Mesh(geometry, material)
-    this.cube.castShadow = true
-    this.cube.position.y = 1.2
-    scene.add(this.cube)
+class AdvancedMesh {
+  readonly mesh: THREE.Mesh
+  private readonly targetPosition: THREE.Vector3 = new THREE.Vector3()
+  constructor(mesh: THREE.Mesh) {
+    this.mesh = mesh
   }
   update(delta: number) {
-    this.cube.rotation.x += 2 * delta
-    this.cube.rotation.y += 2 * delta
+    
   }
 }
+
+class CollectionEntities extends Collection {
+  private readonly scene: THREE.Scene
+  private readonly entityIdToMeshMap = new Map<number, AdvancedMesh>()
+  constructor(scene: THREE.Scene) {
+    super()
+    this.scene = scene
+  }
+  private createMeshForEntity(entity: NetworkStateEntity) {
+    const geometry = new THREE.BoxBufferGeometry()
+    const material = new THREE.MeshLambertMaterial()
+    const mesh = new THREE.Mesh(geometry, material)
+    const advancedMesh = new AdvancedMesh(mesh)
+    this.scene.add(mesh)
+    this.entityIdToMeshMap.set(entity.id, advancedMesh)
+  }
+  private removeMeshForEntityId(entityId: number) {
+    const advancedMesh = this.entityIdToMeshMap.get(entityId)
+    if (!advancedMesh) return
+    this.scene.remove(advancedMesh.mesh)
+    this.entityIdToMeshMap.delete(entityId)
+  }
+  private updateDifference(networkStateEntities: NetworkStateEntity[]) {
+    const currentEntityIds = Array.from(this.entityIdToMeshMap.keys())
+    const createdEntitiesIds = _.difference(
+      networkStateEntities.map(e => e.id),
+      currentEntityIds,
+    )
+    const removedEntitiesIds = _.difference(
+      currentEntityIds,
+      networkStateEntities.map(e => e.id),
+    )
+    _.forEach(createdEntitiesIds, entityId => {
+      const entity = networkStateEntities.find(entity => entity.id === entityId)
+      if (!entity) return
+      this.createMeshForEntity(entity)
+    })
+    _.forEach(removedEntitiesIds, entityId => {
+      this.removeMeshForEntityId(entityId)
+    })
+  }
+  private updatePositions(networkStateEntities: NetworkStateEntity[]) {
+    _.forEach(networkStateEntities, entity => {
+      const movementComponent = entity.components.find(component => component.type === 'MOVEMENT')
+      if (!movementComponent) {
+        console.warn('CollectionEntities cant find movement component')
+        return
+      }
+      const advancedMesh = this.entityIdToMeshMap.get(entity.id)
+      if(!advancedMesh) {
+        console.warn('Entity mismatch between NetworkState and CollectionEntities')
+        return
+      }
+      advancedMesh.mesh.position.x = movementComponent.position.x
+      advancedMesh.mesh.position.z = movementComponent.position.y
+    })
+  }
+  updateNetworkState(networkState: NetworkState) {
+    this.updateDifference(networkState.entities)
+    this.updatePositions(networkState.entities)
+  }
+  update(delta: number) {
+    const advancedMeshes = Array.from(this.entityIdToMeshMap.values())
+    advancedMeshes.forEach(advancedMesh => advancedMesh.update(delta))
+  }
+}
+
+// class CollectionEntitiesCube extends Collection {
+//   private cube: THREE.Mesh
+//   constructor(scene: THREE.Scene) {
+//     super()
+//     const geometry = new THREE.BoxGeometry()
+//     const material = new THREE.MeshLambertMaterial({ color: new THREE.Color('#ff5858') })
+//     this.cube = new THREE.Mesh(geometry, material)
+//     this.cube.castShadow = true
+//     this.cube.position.y = 1.2
+//     scene.add(this.cube)
+//   }
+//   update(delta: number) {
+//     this.cube.rotation.x += 2 * delta
+//     this.cube.rotation.y += 2 * delta
+//   }
+// }

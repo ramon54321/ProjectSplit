@@ -11,7 +11,6 @@
     "lodash": "^4.17.20",
     "module-alias": "^2.2.2",
     "net-sync": "file:../../ProjectNetsync",
-    "resolvable": "file:../../ProjectResolvable",
     "spatial-math": "file:../../ProjectSpatialMath",
     "yargs": "^16.2.0"
   },

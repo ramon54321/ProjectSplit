@@ -1,12 +1,12 @@
 import { NetworkStateIO } from './network-state-io'
 import { NetworkActions } from './NetworkActions'
 import { NetSyncClient } from 'net-sync'
-import { NetMessage } from '@shared'
+import { NetMessage, NetworkState } from '@shared'
 import * as _ from 'lodash'
 import { AI } from './ai'
 
 export class Init {
-  private readonly networkState: any
+  private readonly networkState: NetworkState
   private readonly netSyncClient: NetSyncClient<NetMessage>
   private readonly networkActions: NetworkActions
   private readonly networkStateIO: NetworkStateIO
@@ -14,13 +14,13 @@ export class Init {
     host: string,
     port: number,
     NetworkStateIOClass: new (
-      networkState: any,
+      networkState: NetworkState,
       networkActions: NetworkActions,
-      AIClass: new (networkStateIO: NetworkStateIO, networkState: any, networkActions: NetworkActions) => AI,
+      AIClass: new (networkStateIO: NetworkStateIO, networkState: NetworkState, networkActions: NetworkActions) => AI,
     ) => NetworkStateIO,
-    AIClass: new (networkStateIO: NetworkStateIO, networkState: any, networkActions: NetworkActions) => AI,
+    AIClass: new (networkStateIO: NetworkStateIO, networkState: NetworkState, networkActions: NetworkActions) => AI,
   ) {
-    this.networkState = {}
+    this.networkState = {} as any
     this.netSyncClient = new NetSyncClient<NetMessage>(this.networkState, host, port)
     this.networkActions = new NetworkActions(this.netSyncClient)
     this.networkStateIO = new NetworkStateIOClass(this.networkState, this.networkActions, AIClass)

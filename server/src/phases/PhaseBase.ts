@@ -4,6 +4,12 @@ import { ServerState } from '../ServerState'
 import { Phase } from './Phase'
 import * as _ from 'lodash'
 
+async function delay(milliseconds: number) {
+  await new Promise<void>((resolve, reject) => {
+    setTimeout(() => resolve(), milliseconds)
+  })
+}
+
 export abstract class PhaseBase extends Phase<GamePhase> {
   protected readonly phase: GamePhase
   protected readonly netSyncServer: NetSyncServer<NetMessage>
@@ -31,6 +37,8 @@ export abstract class PhaseBase extends Phase<GamePhase> {
     this.netSyncServer.on('connect', this.onClientJoinHandler)
     this.netSyncServer.on('disconnect', this.onClientLeaveHandler)
     this.netSyncServer.on('message', this.onClientMessageHandler as any)
+    await delay(500)
+    console.log('Sending phase notice', this.phase)
     _.forEach(this.serverState.getClientIds(), clientId => {
       this.netSyncServer.sendMessage(clientId, {
         type: 'PHASE',

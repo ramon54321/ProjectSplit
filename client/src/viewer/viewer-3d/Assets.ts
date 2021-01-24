@@ -16,6 +16,8 @@ export class Assets {
       const extension = path.extname(resource)
       if (textureExtensions.includes(extension)) {
         this.textures[resource] = new THREE.TextureLoader().load(`resources/${resource}`)
+      } else {
+        console.warn(`Unknown asset: ${resource}`)
       }
     })
   }

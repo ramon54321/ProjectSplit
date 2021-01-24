@@ -36,7 +36,7 @@ export class RenderLayerGimbal extends RenderLayer {
     this.scene.add(line)
     return line
   }
-  render() {
+  render(delta: number) {
     this.camera.rotation.set(this.mainCamera.rotation.x, this.mainCamera.rotation.y, this.mainCamera.rotation.z)
     this.renderer.clearDepth()
     this.renderer.setViewport(0, 0, 200, 200)

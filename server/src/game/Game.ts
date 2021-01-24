@@ -33,5 +33,5 @@ export abstract class Game {
     this.serverState.setEntities(entities)
   }
   abstract prepare(): void
-  abstract tick(): void
+  abstract tick(tick: number): void
 }

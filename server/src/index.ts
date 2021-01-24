@@ -1,12 +1,12 @@
 import 'module-alias/register'
 import { PhaseMachine, PhaseLobby, PhaseDeploy, PhasePlay } from './phases'
-import { NetMessage, GamePhase } from '@shared'
+import { NetMessage, GamePhase, NetworkState } from '@shared'
 import { ClientManager } from './ClientManager'
 import { ServerState } from './ServerState'
 import { NetSyncServer } from 'net-sync'
 
 // Networking
-const networkState = {} as any
+const networkState = {} as NetworkState
 const netSyncServer = new NetSyncServer<NetMessage>(networkState, 8081)
 
 // State

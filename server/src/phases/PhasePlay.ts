@@ -7,6 +7,7 @@ import { PhaseBase } from './PhaseBase'
 import * as _ from 'lodash'
 
 export class PhasePlay extends PhaseBase {
+  private readonly abandonedClientIdTeamIdStack: number[] = []
   private tickCount = 0
   private tickIntervalHandle: any
   private tickInterval = 5000
@@ -15,6 +16,19 @@ export class PhasePlay extends PhaseBase {
 
   protected onClientMessage(netConnection: NetConnection, netMessage: NetMessage) {
     console.log('Dealing with player play request')
+  }
+  protected onClientJoin(netConnection: NetConnection) {
+    this.netSyncServer.sendMessage(netConnection.id, {
+      type: 'PHASE',
+      phase: 'PLAY',
+    })
+    const clientTeamId = this.abandonedClientIdTeamIdStack.pop()
+    this.serverState.addClientIdToTeamId(netConnection.id, clientTeamId !== undefined ? clientTeamId : 0)
+  }
+  protected onClientLeave(netConnection: NetConnection) {
+    const clientTeamId = this.serverState.getClientTeamId(netConnection.id)
+    this.abandonedClientIdTeamIdStack.push(clientTeamId)
+    this.serverState.removeClientIdFromAllTeamIds(netConnection.id)
   }
 
   async onEntry(fromPhase: GamePhase): Promise<GamePhase | undefined> {
@@ -51,7 +65,7 @@ export class PhasePlay extends PhaseBase {
 
   private tick() {
     console.log('-----------------------TICK-----------------------')
-    this.game?.tick()
+    this.game?.tick(this.tickCount)
     this.game?.sync()
     this.serverState.sync()
     this.broadcastTickMessage()
